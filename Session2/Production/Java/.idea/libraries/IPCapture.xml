@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="IPCapture">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/IPCapture.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

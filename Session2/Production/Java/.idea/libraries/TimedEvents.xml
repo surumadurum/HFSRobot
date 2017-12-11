@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="TimedEvents">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/lib/TimedEvents.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
