@@ -16,17 +16,11 @@ import controlP5.*;
 import java.io.*;
 
 import org.apache.commons.collections4.map.ListOrderedMap;
-import org.gwoptics.graphics.graph2D.Graph2D;
-import org.gwoptics.graphics.graph2D.traces.ILine2DEquation;
-import org.gwoptics.graphics.graph2D.traces.RollingLine2DTrace;
 
 
 import processing.core.PApplet;
 import processing.event.MouseEvent;
-import sun.awt.resources.awt;
-import sun.nio.ch.sctp.SctpNet;
 
-import static de.robertliebner.hfs.robot.State.RECORD;
 import processing.sound.*;
 
 
@@ -49,7 +43,8 @@ public class Controller extends processing.core.PApplet {
 //    public  static final List<String> servo_types = Arrays.asList("TowerPro", "Master", "Savoex", "HeadBlue", "HeadBlack");  //available servo-types, used to fill dropdown menus
 
     public static final int SERVOS_PER_BOARD = 10;
-    public static final int UDP_RECEIVE_PORT = 8000;
+    public static final int UDP_RECEIVE_PORT_ROBOT = 8000;
+    public static final int UDP_RECEIVE_PORT_MIDDLEWARE = 7000;
 
     OutputStream fos = null;  //used for data serialization
 
@@ -69,6 +64,8 @@ public class Controller extends processing.core.PApplet {
 
     ComRobot comRobot = new ComRobot();
 
+    ComMiddleware comMiddleware = new ComMiddleware();
+
     public static void main(String[] args) {
         main("de.robertliebner.hfs.robot.Controller");
     }
@@ -79,7 +76,6 @@ public class Controller extends processing.core.PApplet {
     }
 
     public void setup() {
-
 
         servos.put("TowerPro",
                 new ServoSpecs(60,859,180,566));
@@ -99,6 +95,9 @@ public class Controller extends processing.core.PApplet {
 
 
         comRobot.init(this);    //Initialize communication with robot
+
+        ComMiddleware.init();
+
 
         SceneControl.init();
 
@@ -141,7 +140,14 @@ public class Controller extends processing.core.PApplet {
                 .setSize(400, 300)
                 .setBarHeight(19)
                 .setItemHeight(19)
-                .setType(ScrollableList.LIST); // currently supported DROPDOWN and LIST
+                .setType(ScrollableList.LIST);
+
+        ctrlP5.addScrollableList("queue")
+                .setPosition(700, 500)
+                .setSize(400, 300)
+                .setBarHeight(19)
+                .setItemHeight(19)
+                .setType(ScrollableList.LIST);
 
         ctrlP5.addButton("loadSceneButton")
                 .setPosition(700, 470)
@@ -195,6 +201,9 @@ public class Controller extends processing.core.PApplet {
 
             chart[i].addDataSet("pwm");
             chart[i].setData("pwm", new float[100]);
+
+
+            loadButton();
         }
     }
 
@@ -285,6 +294,7 @@ public class Controller extends processing.core.PApplet {
                 btnPlayback.setColorLabel(color(255, 255, 255));
                 break;
 
+            case PLAYBACK_QUEUE:    //TODO get a separate button for this
             case PLAYBACK:
                 btnRec.setColorLabel(color(255, 255, 255));
                 btnPlayback.setColorLabel(color(255, 0, 0));
@@ -335,7 +345,7 @@ public class Controller extends processing.core.PApplet {
             ObjectInputStream o = new ObjectInputStream(fis);
             //   ctrlP5 = (ControlP5) o.readObject();
             SceneControl.setLstScenes((HashMap<String, ArrayList<int[]>>) o.readObject());
-            FillSceneList();
+            fillSceneList();
             //System.out.println( string );
             //System.out.println( date );
         } catch (IOException e) {
@@ -354,10 +364,16 @@ public class Controller extends processing.core.PApplet {
         //TODO user feedback
     }
 
-    public static void FillSceneList() {
+    public static void fillSceneList() {
         ((ScrollableList) ctrlP5.getController("scenes"))
                 .clear()
                 .addItems(SceneControl.getLstScenes().keySet().toArray(new String[SceneControl.getLstScenes().keySet().size()]));
+    }
+
+    public static void fillQueueList() {
+        ((ScrollableList) ctrlP5.getController("queue"))
+                .clear()
+                .addItems(SceneControl.getSceneQueue());
     }
 
     public void mouseClicked(MouseEvent m) {
@@ -386,7 +402,7 @@ public class Controller extends processing.core.PApplet {
 
         SceneControl.deleteScene(selectedSceneName);
 
-        FillSceneList();
+        fillSceneList();
     }
 
     public void recordButton() {
@@ -420,7 +436,6 @@ public class Controller extends processing.core.PApplet {
         analogValue[channel] = value;
 
         chart[channel].push("pwm",value);
-
 
         if(value>= servos.get(getServoType(channel)).getPwm_max() || value <= servos.get(getServoType(channel)).pwm_min)
 

@@ -25,6 +25,7 @@ abstract class DialogBox {
             messageBox.hide();
         } else {
             messageBox.show();
+
         }
     }
 
@@ -42,7 +43,7 @@ abstract class DialogBox {
         
         
         // create a group to store the messageBox elements
-        messageBox = ctrlP5.addGroup("messageBox", 700, 600, 300);
+        messageBox = ctrlP5.addGroup("messageBox", 700, 900, 300);
         messageBox.setBackgroundHeight(120);
         messageBox.setBackgroundColor(ctrlP5.papplet.color(0, 100));
         messageBox.hideBar();
@@ -59,6 +60,7 @@ abstract class DialogBox {
         f.setColorForeground(ctrlP5.papplet.color(20));
         f.setColorBackground(ctrlP5.papplet.color(20));
         f.setColorActive(ctrlP5.papplet.color(100));
+        f.bringToFront();
         // add the OK button to the messageBox.
         // the name of the button corresponds to function buttonOK
         // below and will be triggered when pressing the button.
@@ -66,6 +68,7 @@ abstract class DialogBox {
         b1.moveTo(messageBox);
         b1.setColorBackground(ctrlP5.papplet.color(40));
         b1.setColorActive(ctrlP5.papplet.color(20));
+        b1.bringToFront();
         // by default setValue would trigger function buttonOK,
         // therefore we disable the broadcasting before setting
         // the value and enable broadcasting again afterwards.
@@ -81,7 +84,7 @@ abstract class DialogBox {
                 messageBoxString = ((Textfield) ctrlP5.getController("inputbox")).getText();
                 messageBox.hide();
 
-                onFinished(((int) callbackEvent.getController().getValue()),messageBoxString);
+                onFinished(((int) callbackEvent.getController().getValue()),messageBoxString.toLowerCase());
             }
         });
         // centering of a label needs to be done manually
@@ -102,6 +105,7 @@ abstract class DialogBox {
         b2.setCaptionLabel("Cancel");
         b2.setColorBackground(ctrlP5.papplet.color(40));
         b2.setColorActive(ctrlP5.papplet.color(20));
+        b2.bringToFront();
 
         b2.onRelease(new CallbackListener() {
             @Override
@@ -127,6 +131,7 @@ abstract class DialogBox {
     //        println("got something from the inputbox : " + theString);
         messageBoxString = theString;
         messageBox.hide();
+
 
         //FIXME is result of 1 correct for OK?
         onFinished(1,messageBoxString);

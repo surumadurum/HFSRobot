@@ -26,7 +26,7 @@ class ComRobot
 
         //setup UDP
         //set this to the receiving port
-        oscP5 = new OscP5(this, Controller.UDP_RECEIVE_PORT);
+        oscP5 = new OscP5(this, Controller.UDP_RECEIVE_PORT_ROBOT);
     }
 
     //Sends moveable Request to all boards
